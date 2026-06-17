@@ -13,7 +13,24 @@ st.write("Paste a job description and upload your CV (or paste it) to see your m
 col1, col2 = st.columns(2)
 
 with col1:
-    jd_input = st.text_area("Job Description", height=250, placeholder="Paste the job description here...")
+    st.write("**Job Description**")
+    jd_method = st.radio("How would you like to provide the job description?",
+                          ["Paste text", "Upload file (PDF/DOCX)"],
+                          horizontal=True, key="jd_method")
+
+    jd_input = ""
+
+    if jd_method == "Upload file (PDF/DOCX)":
+        jd_file = st.file_uploader("Upload job description", type=['pdf', 'docx'], key="jd_uploader")
+        if jd_file is not None:
+            extracted_jd = extract_text_from_file(jd_file)
+            if extracted_jd:
+                jd_input = extracted_jd
+                st.success(f"Extracted {len(extracted_jd.split())} words from {jd_file.name}")
+            else:
+                st.error("Could not read this file type.")
+    else:
+        jd_input = st.text_area("Paste the job description here", height=200, placeholder="Paste the job description here...")
 
 with col2:
     st.write("**Your CV / Resume**")
