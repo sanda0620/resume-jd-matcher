@@ -1,5 +1,6 @@
 import streamlit as st
 from matcher import match_resume_to_jd, extract_text_from_file
+import plotly.graph_objects as go
 
 st.set_page_config(
     page_title="Resume-JD Matcher",
@@ -76,6 +77,34 @@ if st.button("Check Match", type="primary"):
             st.metric("Text Similarity", f"{result['tfidf_similarity']}%")
         with col_b:
             st.metric("Skill Coverage", f"{result['skill_coverage']}%")
+
+        st.divider()
+
+        matched_count = len(result['matched_skills'])
+        missing_count = len(result['missing_skills'])
+
+        fig = go.Figure(data=[go.Pie(
+            labels=['Matched Skills', 'Missing Skills'],
+            values=[matched_count, missing_count],
+            hole=0.6,
+            marker=dict(colors=['#2ecc71', '#e74c3c']),
+            textinfo='label+percent',
+            textfont=dict(size=14)
+        )])
+
+        fig.update_layout(
+            showlegend=False,
+            height=320,
+            margin=dict(t=20, b=20, l=20, r=20),
+            annotations=[dict(
+                text=f"{result['skill_coverage']}%<br>Coverage",
+                x=0.5, y=0.5,
+                font_size=20,
+                showarrow=False
+            )]
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
 
         st.divider()
 
